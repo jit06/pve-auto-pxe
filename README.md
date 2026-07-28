@@ -1,8 +1,10 @@
-# Generate PXE files for automated PVE installation
+# Generate PXE and ISO files for automated PVE installation
 The aim of pve-auto-pxe is to generate PXE ready files for fully automated Proxmox provisioning with no human action.
 It uses Proxmox official ISO and [the dedicated tool](https://pve.proxmox.com/wiki/Automated_Installation) as well as [pve-iso-2-pxe](https://github.com/morph027/pve-iso-2-pxe) to create an unattended bootable ISO installer and convert It to PXE files.
 
-It also allows to 
+As a side effect, it also create a bootable ISO image with the exact same content as the generated PXE image.
+
+It also allows to
 - inject a custom rc.local
 - inject a custom network interfaces file as /etc/interfaces.install
 - allows to install on emmc disks (/dev/mmcblk*)
@@ -65,4 +67,5 @@ fi
 
 # Versions History
 - V1.0 - working concept, no customization, not pubished
-- V1.1 - allows emmc disks, rc.local and interfaces files injection 
+- V1.1 - allows emmc disks, rc.local and interfaces files injection
+- V1.2 - Generated final ISO image is now bootable and has the same content as the PXE image

@@ -13,8 +13,9 @@ RUN apt install -y proxmox-auto-install-assistant git
 
 # from https://github.com/morph027/pve-iso-2-pxe
 RUN git clone --depth 1 https://github.com/morph027/pve-iso-2-pxe /opt/pve-iso-2-pxe
-RUN apt install -y cpio file zstd gzip genisoimage mkisofs squashfs-tools
+RUN apt install -y cpio file zstd gzip genisoimage mkisofs squashfs-tools gdisk
 
 ADD ./generate-pxe.sh /opt/generate-pxe.sh
+RUN chmod +x /opt/generate-pxe.sh
 
 ENTRYPOINT ["/opt/generate-pxe.sh"]

@@ -6,9 +6,9 @@
 #
 #########################################################
 VERSION=1.1
-PVE_ISO_NAME="proxmox-ve_8.2-1.iso"
-PVE_AUTO_NAME="proxmox-ve_8.2-1-auto-from-iso.iso"
-PVE_MOD_NAME="proxmox-ve_8.2-1-auto-from-iso-MOD.iso"
+PVE_ISO_NAME="proxmox-ve_8.4-1.iso"
+PVE_AUTO_NAME="proxmox-ve_8.4-1-auto-from-iso.iso"
+PVE_MOD_NAME="proxmox-ve_8.4-1-auto-from-iso-MOD.iso"
 ANSWER_FILE="answer.toml"
 MBR_FILE="proxmox.mbr"
 SQUASHFS_BASE="pve-base.squashfs"
@@ -103,6 +103,20 @@ tar cf - -C $WORKDIR/mnt . | tar xfp - -C $WORKDIR/tmp
 if [ $? -ne 0 ]; then
     Error "Unable to copy mount ISO to tmp dir"
 fi
+
+Info "Inject custom grub configuration"
+cat > $WORKDIR/tmp/boot/grub/grub.cfg <<'EOF'
+set default=0
+set timeout=0
+
+search --no-floppy --file /pve-base.squashfs --set=root
+
+menuentry "Proxmox Auto Install" {
+    linux /boot/linux26 ramdisk_size=16777216 ro proxmox-start-auto-installer
+    initrd /boot/initrd.img
+}
+EOF
+
 umount $WORKDIR/mnt
 
 
@@ -203,21 +217,31 @@ cd /
 #########################################################
 
 # create a new bootable iso
-Info "Generate a new ISO in $WORKDIR/$PVE_MOD_NAME"
+CREATE_DATE=$(xorriso -indev "$WORKDIR/$PVE_ISO_NAME" -pvd_info | awk -F ': ' '/Creation Time/ {print $2}')
+
+Info "Generate a new ISO in $WORKDIR/$PVE_MOD_NAME with ID $CREATE_DATE"
 xorriso -as mkisofs \
 -o $WORKDIR/$PVE_MOD_NAME \
 -r -V 'PVE' \
---modification-date=$(date '+%Y%m%d%H%M%S00') \
--isohybrid-mbr $WORKDIR/$MBR_FILE \
--partition_offset 16 \
+--modification-date="$CREATE_DATE" \
+--grub2-mbr $WORKDIR/$MBR_FILE \
 --protective-msdos-label \
--appended_part_as_gpt \
+-partition_cyl_align off \
+-partition_offset 0 \
+-partition_hd_cyl 94 \
+-partition_sec_hd 32 \
+-apm-block-size 2048 \
+-hfsplus \
 -efi-boot-part --efi-boot-image \
 -c '/boot/boot.cat' \
 -b '/boot/grub/i386-pc/eltorito.img' \
--no-emul-boot -boot-load-size 4 -boot-info-table --grub2-boot-info \
+-no-emul-boot \
+-boot-load-size 4 \
+-boot-info-table \
+--grub2-boot-info \
 -eltorito-alt-boot \
--e '/efi.img' -no-emul-boot \
+-e '/efi.img' \
+-no-emul-boot \
 $WORKDIR/tmp
 
 if [ $? -ne 0 ]; then
