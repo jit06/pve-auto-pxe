@@ -5,10 +5,12 @@
 #   Script variables
 #
 #########################################################
-VERSION=1.1
-PVE_ISO_NAME="proxmox-ve_8.4-1.iso"
-PVE_AUTO_NAME="proxmox-ve_8.4-1-auto-from-iso.iso"
-PVE_MOD_NAME="proxmox-ve_8.4-1-auto-from-iso-MOD.iso"
+VERSION=1.3
+#PVE_VERSION="8.4-1"
+PVE_VERSION="9.2-1"
+PVE_ISO_NAME="proxmox-ve_${PVE_VERSION}.iso"
+PVE_AUTO_NAME="proxmox-ve_${PVE_VERSION}-auto-from-iso.iso"
+PVE_MOD_NAME="proxmox-ve_${PVE_VERSION}-auto-from-iso-MOD.iso"
 ANSWER_FILE="answer.toml"
 MBR_FILE="proxmox.mbr"
 SQUASHFS_BASE="pve-base.squashfs"
